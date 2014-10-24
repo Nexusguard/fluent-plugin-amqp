@@ -61,7 +61,7 @@ module Fluent
       q = @bunny.queue(@queue, :passive => @passive, :durable => @durable,
                        :exclusive => @exclusive, :auto_delete => @auto_delete)
       if @bind != nil
-        q.bind(@bind, @bind_routing_key)
+        q.bind(@bind, :routing_key => @bind_routing_key)
       end
       q.subscribe do |_, _, msg|
         payload = parse_payload(msg)
