@@ -1,6 +1,6 @@
 = fluent-plugin-amqp
 
-Description goes here.
+This is a customization edition used by ClearWatch.
 
 == Contributing to fluent-plugin-amqp
  
