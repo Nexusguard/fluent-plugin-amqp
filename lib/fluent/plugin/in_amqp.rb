@@ -18,8 +18,8 @@ module Fluent
     config_param :auto_delete, :bool, :default => false
     config_param :passive, :bool, :default => false
     config_param :payload_format, :string, :default => "json"
-    config_param :bind, :string, :default => nil
-    config_param :bind_routing_key, :string, :default => "*"
+    config_param :exchange, :string, :default => nil
+    config_param :routing_key, :string, :default => "*"
 
     def initialize
       require 'bunny'
@@ -60,11 +60,13 @@ module Fluent
       @bunny.start
       q = @bunny.queue(@queue, :passive => @passive, :durable => @durable,
                        :exclusive => @exclusive, :auto_delete => @auto_delete)
-      if @bind != nil
-        q.bind(@bind, :routing_key => @bind_routing_key)
+      if @exchange != nil
+        q.bind(@exchange, :routing_key => @routing_key)
       end
-      q.subscribe do |_, _, msg|
+      q.subscribe do |delivery_info, _, msg|
         payload = parse_payload(msg)
+        payload["__routing_key"] = delivery_info.routing_key
+        payload["__datetime"] = Time.new.strftime "%Y-%m-%d %H:%M:%S"
         Engine.emit(@tag, Time.new.to_i, payload)
       end
     end # AMQPInput#run
